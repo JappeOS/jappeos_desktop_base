@@ -1,0 +1,31 @@
+name: jappeos_desktop_base
+description: "Contains base widgets and tools used by the greeter and the desktop environment."
+publish_to: 'none' # Remove this line if you wish to publish to pub.dev
+version: 1.0.0+1
+
+environment:
+  sdk: ^3.9.2
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  shadcn_flutter:
+    git:
+      url: https://github.com/JappeOS/shadcn_flutter.git
+      ref: master
+
+  jdwm_flutter:
+    git:
+      url: https://github.com/JappeOS/JDWM.git
+      ref: main
+      path: jdwm_flutter
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+
+  flutter_lints: ^5.0.0
+
+flutter:
+  uses-material-design: true
