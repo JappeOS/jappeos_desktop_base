@@ -11,7 +11,7 @@
   <a href="./issues"><img src="https://img.shields.io/github/issues/JappeOS/jappeos_desktop_base?style=plastic&color=edda09"></a>
   <a href="./pulls"><img src="https://img.shields.io/github/issues-pr/JappeOS/jappeos_desktop_base?style=plastic&color=40a842"></a>
   <a href="./blob/main/LICENSE"><img src="https://img.shields.io/github/license/JappeOS/jappeos_desktop_base?style=plastic&color=9d09ed"></a>
-  <img src="https://img.shields.io/badge/arch-x86_64-blue?style=plastic">
+  <img src="https://img.shields.io/badge/arch-x86__64-blue?style=plastic">
   <img src="https://img.shields.io/badge/status-experimental-orange?style=plastic">
   <a href="https://discord.gg/dRtU4HR"><img src="https://img.shields.io/discord/716673375946407972?style=plastic&color=3250a8"></a>
 </p>
