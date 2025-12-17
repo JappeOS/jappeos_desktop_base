@@ -57,6 +57,10 @@ $ flutter pub get
 
 ### Build
 
+> [!IMPORTANT]
+> This project is meant to be used as a library through pubspec, and cannot be ran locally.
+> If you need to test it, create another Dart or Flutter project and add it as a dependency.
+
 #### Linux
 
 ```bash
