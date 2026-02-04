@@ -18,7 +18,7 @@ import 'package:shadcn_flutter/shadcn_flutter.dart' hide Monitor;
 import 'package:jdwm_flutter/jdwm_flutter.dart';
 
 class DesktopBase extends StatefulWidget {
-  final GlobalKey<MultiMonitorManagerState> wmKey;
+  final GlobalKey<WindowManagerState> wmKey;
   final EdgeInsets dynamicMonitorInsets;
   final List<MonitorConfig> monitorConfig;
   final Widget Function(BuildContext context, MonitorConfig monitor)? monitorBuilder;
@@ -50,7 +50,7 @@ class _DesktopBaseState extends State<DesktopBase> {
         ));
       }
 
-      return MultiMonitorManager(
+      return WindowManager(
         key: widget.wmKey,
         monitors: monConf,
         monitorBuilder: widget.monitorBuilder,
