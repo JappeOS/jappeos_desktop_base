@@ -1,5 +1,5 @@
 //  jappeos_desktop_base, Base widgets and tools used by the greeter and the desktop environment.
-//  Copyright (C) 2025  Jappe02
+//  Copyright (C) 2026  Jappe02
 //
 //  This program is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU Affero General Public License as
@@ -14,8 +14,6 @@
 //  You should have received a copy of the GNU Affero General Public License
 //  along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-library jappeos_desktop_base;
+library;
 
-export 'src/model/monitor_config.dart';
-export 'src/model/wm_config.dart';
 export 'src/widgets/desktop_base.dart';

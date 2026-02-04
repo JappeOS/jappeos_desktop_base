@@ -186,7 +186,7 @@ packages:
     description:
       path: jdwm_flutter
       ref: main
-      resolved-ref: a4d53987edc390f3b6f8b22609ed219545045f7b
+      resolved-ref: "2a6280bf0c65a3a42a2a00a3e70e7dbd0f1aaaf2"
       url: "https://github.com/JappeOS/JDWM.git"
     source: git
     version: "1.0.0+1"
@@ -270,6 +270,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.17.0"
+  nested:
+    dependency: transitive
+    description:
+      name: nested
+      sha256: "03bac4c528c64c95c722ec99280375a6f2fc708eec17c7b3f07253b626cd2a20"
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.0.0"
   path:
     dependency: transitive
     description:
@@ -311,6 +319,14 @@ packages:
       url: "https://github.com/JappeOS/prioritized_event.git"
     source: git
     version: "1.0.0+1"
+  provider:
+    dependency: transitive
+    description:
+      name: provider
+      sha256: "4e82183fa20e5ca25703ead7e05de9e4cceed1fbd1eadc1ac3cb6f565a09f272"
+      url: "https://pub.dev"
+    source: hosted
+    version: "6.1.5+1"
   quiver:
     dependency: transitive
     description:
@@ -372,7 +388,7 @@ packages:
     description:
       path: "."
       ref: master
-      resolved-ref: aae757be0fc41aa00a117097df7c30984c718979
+      resolved-ref: "6af8a1d2f463fdda5068f923312a19cc3b802f14"
       url: "https://github.com/JappeOS/shadcn_flutter.git"
     source: git
     version: "0.0.48"
