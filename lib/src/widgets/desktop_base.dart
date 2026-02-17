@@ -1,5 +1,5 @@
 //  jappeos_desktop_base, Base widgets and tools used by the greeter and the desktop environment.
-//  Copyright (C) 2026  Jappe02
+//  Copyright (C) 2026  The JappeOS team.
 //
 //  This program is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU Affero General Public License as
@@ -17,12 +17,12 @@
 import 'package:shadcn_flutter/shadcn_flutter.dart' hide Monitor;
 import 'package:jdwm_flutter/jdwm_flutter.dart';
 
-class DesktopBase extends StatefulWidget {
+class DesktopBase extends StatelessWidget {
   final GlobalKey<WindowManagerState> wmKey;
   final EdgeInsets dynamicMonitorInsets;
   final List<MonitorConfig> monitorConfig;
-  final Widget Function(BuildContext context, MonitorConfig monitor)? monitorBuilder;
-  final Widget Function(BuildContext context, MonitorConfig monitor)? monitorOverlayBuilder;
+  final Widget Function(BuildContext, MonitorConfig)? monitorBuilder;
+  final Widget Function(BuildContext, MonitorConfig)? monitorOverlayBuilder;
 
   const DesktopBase({
     super.key,
@@ -34,28 +34,30 @@ class DesktopBase extends StatefulWidget {
   });
 
   @override
-  _DesktopBaseState createState() => _DesktopBaseState();
-}
-
-class _DesktopBaseState extends State<DesktopBase> {
-  @override
   Widget build(BuildContext context) {
-    return LayoutBuilder(builder: (context, constraints) {
-      var monConf = widget.monitorConfig.toList();
-      if (widget.monitorConfig.isEmpty) {
-        monConf.add(MonitorConfig(
-          id: 'primary',
-          bounds: Rect.fromLTWH(0, 0, constraints.maxWidth, constraints.maxHeight),
-          margin: widget.dynamicMonitorInsets,
-        ));
-      }
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        var monConf = monitorConfig.toList();
+        if (monitorConfig.isEmpty) {
+          monConf.add(MonitorConfig(
+            id: 'primary',
+            bounds: Rect.fromLTWH(
+              0,
+              0,
+              constraints.maxWidth,
+              constraints.maxHeight,
+            ),
+            margin: dynamicMonitorInsets,
+          ));
+        }
 
-      return WindowManager(
-        key: widget.wmKey,
-        monitors: monConf,
-        monitorBuilder: widget.monitorBuilder,
-        monitorOverlayBuilder: widget.monitorOverlayBuilder,
-      );
-    });
+        return WindowManager(
+          key: wmKey,
+          monitors: monConf,
+          monitorBuilder: monitorBuilder,
+          monitorOverlayBuilder: monitorOverlayBuilder,
+        );
+      },
+    );
   }
 }
