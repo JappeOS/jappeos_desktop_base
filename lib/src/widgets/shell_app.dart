@@ -70,7 +70,10 @@ class ShellApp extends StatelessWidget {
     final mediaQuery = MediaQuery.of(context);
     return JappeosServiceProvider(
       child: MultiProvider(
-        providers: providers,
+        providers: [
+          ...providers,
+          ListenableProvider<ThemeProvider>(create: (_) => ThemeProvider()),
+        ],
         builder: (context, _) => MediaQuery(
           // TODO: Correctly integrate system text scaling by changing scales of icons and other UI elements with text.
           data: mediaQuery.copyWith(textScaler: const TextScaler.linear(1.0)),
