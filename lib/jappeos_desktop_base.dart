@@ -1,5 +1,5 @@
 //  jappeos_desktop_base, Base widgets and tools used by the greeter and the desktop environment.
-//  Copyright (C) 2026  Jappe02
+//  Copyright (C) 2026  The JappeOS team.
 //
 //  This program is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU Affero General Public License as
@@ -16,4 +16,7 @@
 
 library;
 
-export 'src/widgets/desktop_base.dart';
+export 'src/keybinds/global_keybind_scope.dart';
+export 'src/keybinds/global_keybind_service.dart';
+export 'src/provider/theme_provider.dart';
+export 'src/widgets/shell_app.dart';
