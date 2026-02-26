@@ -15,7 +15,7 @@
 //  along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 import 'package:jappeos_services/jappeos_services.dart';
-import 'package:jdwm_flutter/jdwm_flutter.dart';
+import 'package:jdwm/jdwm.dart';
 import 'package:provider/provider.dart';
 import 'package:shadcn_flutter/shadcn_flutter.dart';
 import 'package:nested/nested.dart';
@@ -23,7 +23,6 @@ import 'package:nested/nested.dart';
 import '../keybinds/global_keybind_scope.dart';
 import '../keybinds/global_keybind_service.dart';
 import '../provider/theme_provider.dart';
-import 'desktop_base.dart';
 
 class ShellApp extends StatelessWidget {
   final List<SingleChildWidget> providers;
@@ -97,10 +96,9 @@ class ShellApp extends StatelessWidget {
               keybinds: keybinds,
               child: Scaffold(
                 backgroundColor: Colors.transparent,
-                child: DesktopBase(
-                  wmKey: wmKey,
-                  dynamicMonitorInsets: dynamicMonitorInsets,
-                  monitorConfig: monitors,
+                child: WindowManager(
+                  key: wmKey,
+                  monitors: monitors,
                   monitorBuilder: monitorBuilder,
                   monitorOverlayBuilder: monitorOverlayBuilder,
                 ),
