@@ -38,7 +38,6 @@ class ShellApp extends StatelessWidget {
   final Map<Type, Action<Intent>>? actions;
   final GlobalKeybindService? keybinds;
   final GlobalKey<WindowManagerState> wmKey;
-  final EdgeInsets dynamicMonitorInsets;
   final List<MonitorConfig> monitors;
   final List<MonitorConfig> Function(BuildContext, List<MonitorConfig>)? monitorLayoutBuilder;
   final Widget Function(BuildContext, MonitorConfig)? monitorBuilder;
@@ -59,7 +58,6 @@ class ShellApp extends StatelessWidget {
     this.actions,
     this.keybinds,
     required this.wmKey,
-    this.dynamicMonitorInsets = EdgeInsets.zero,
     this.monitors = const [],
     this.monitorLayoutBuilder,
     this.monitorBuilder,
