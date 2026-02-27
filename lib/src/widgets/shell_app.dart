@@ -40,6 +40,7 @@ class ShellApp extends StatelessWidget {
   final GlobalKey<WindowManagerState> wmKey;
   final EdgeInsets dynamicMonitorInsets;
   final List<MonitorConfig> monitors;
+  final List<MonitorConfig> Function(BuildContext, List<MonitorConfig>)? monitorLayoutBuilder;
   final Widget Function(BuildContext, MonitorConfig)? monitorBuilder;
   final Widget Function(BuildContext, MonitorConfig)? monitorOverlayBuilder;
 
@@ -60,6 +61,7 @@ class ShellApp extends StatelessWidget {
     required this.wmKey,
     this.dynamicMonitorInsets = EdgeInsets.zero,
     this.monitors = const [],
+    this.monitorLayoutBuilder,
     this.monitorBuilder,
     this.monitorOverlayBuilder,
   });
@@ -99,6 +101,7 @@ class ShellApp extends StatelessWidget {
                 child: WindowManager(
                   key: wmKey,
                   monitors: monitors,
+                  monitorLayoutBuilder: monitorLayoutBuilder,
                   monitorBuilder: monitorBuilder,
                   monitorOverlayBuilder: monitorOverlayBuilder,
                 ),
