@@ -20,22 +20,25 @@ import 'package:shadcn_flutter/shadcn_flutter.dart';
 typedef KeybindAction = bool Function();
 
 class GlobalKeybindService {
-  final Map<LogicalKeySet, KeybindAction> _bindings = {};
+  final Map<LogicalKeySet, List<KeybindAction>> _bindings = {};
 
   GlobalKeybindService() {
     ServicesBinding.instance.keyboard.addHandler(_handleKey);
   }
 
   void register(LogicalKeySet keySet, KeybindAction action) {
-    if (_bindings.containsKey(keySet)) {
-      throw Exception('Keybind for $keySet is already registered.');
+    if (!_bindings.containsKey(keySet)) {
+      _bindings[keySet] = [];
     }
 
-    _bindings[keySet] = action;
+    _bindings[keySet]!.add(action);
   }
 
-  void unregister(LogicalKeySet keySet) {
-    _bindings.remove(keySet);
+  void unregister(LogicalKeySet keySet, KeybindAction action) {
+    _bindings[keySet]?.remove(action);
+    if (_bindings[keySet]?.isEmpty ?? false) {
+      _bindings.remove(keySet);
+    }
   }
 
   bool _handleKey(KeyEvent event) {
@@ -45,8 +48,15 @@ class GlobalKeybindService {
       HardwareKeyboard.instance.logicalKeysPressed,
     );
 
-    final action = _bindings[pressed];
-    return action?.call() ?? false;
+    final actions = _bindings[pressed];
+    bool handled = false;
+    for (final action in actions ?? []) {
+      if (action()) {
+        handled = true;
+      }
+    }
+
+    return handled;
   }
 
   void dispose() {
