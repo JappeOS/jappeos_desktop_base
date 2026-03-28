@@ -30,17 +30,28 @@ class GlobalKeybindService {
     LogicalKeyboardKey.altLeft: LogicalKeyboardKey.alt,
     LogicalKeyboardKey.altRight: LogicalKeyboardKey.alt,
 
-    // Treat Meta variants and Super as the same key for shortcut matching.
+    // Treat Meta variants and Super as one canonical "Super" key.
     LogicalKeyboardKey.metaLeft: LogicalKeyboardKey.superKey,
     LogicalKeyboardKey.metaRight: LogicalKeyboardKey.superKey,
     LogicalKeyboardKey.meta: LogicalKeyboardKey.superKey,
     LogicalKeyboardKey.superKey: LogicalKeyboardKey.superKey,
   };
 
+  static final Set<LogicalKeyboardKey> _modifierKeys = {
+    LogicalKeyboardKey.shift,
+    LogicalKeyboardKey.control,
+    LogicalKeyboardKey.alt,
+    LogicalKeyboardKey.meta,
+    LogicalKeyboardKey.superKey,
+  };
+
   final Map<LogicalKeySet, List<KeybindAction>> _bindings = {};
 
-  // Prevent firing the same chord multiple times while still held down.
+  // Prevent firing the same chord repeatedly while it stays held.
   final Set<LogicalKeySet> _firedWhilePressed = {};
+
+  // Deferred "modifier-only" chord (e.g. Super) fired on key-up if untouched.
+  LogicalKeySet? _pendingModifierOnlySet;
 
   GlobalKeybindService() {
     ServicesBinding.instance.keyboard.addHandler(_handleKey);
@@ -57,32 +68,84 @@ class GlobalKeybindService {
     if (list == null) return;
     list.remove(action);
     if (list.isEmpty) _bindings.remove(normalized);
+
     _firedWhilePressed.remove(normalized);
+    if (_pendingModifierOnlySet == normalized) {
+      _pendingModifierOnlySet = null;
+    }
   }
 
   bool _handleKey(KeyEvent event) {
     final pressed = _normalizeKeys(HardwareKeyboard.instance.logicalKeysPressed);
 
-    // As the currently pressed chord changes, keep only the active one "armed".
-    _firedWhilePressed.removeWhere((set) => set != pressed);
+    // Drop fired chords that are no longer fully held.
+    _firedWhilePressed.removeWhere(
+      (set) => !_isSubset(set.keys, pressed.keys),
+    );
 
-    if (event is KeyUpEvent) return false;
+    if (event is KeyUpEvent) {
+      return _handleKeyUp(pressed);
+    }
+
     if (event is! KeyDownEvent && event is! KeyRepeatEvent) return false;
+
+    // If a pending modifier-only chord exists, any "new" key cancels it.
+    final pending = _pendingModifierOnlySet;
+    if (pending != null) {
+      final normalizedEventKey = _normalizeKey(event.logicalKey);
+      if (!pending.keys.contains(normalizedEventKey)) {
+        _pendingModifierOnlySet = null;
+      }
+    }
 
     final actions = _bindings[pressed];
     if (actions == null || actions.isEmpty) return false;
 
-    // Already fired for this held chord; ignore duplicate down/repeat events.
+    // Modifier-only chords (Super, Ctrl+Shift, etc.) are deferred to key-up.
+    if (_isModifierOnly(pressed)) {
+      if (event is KeyDownEvent) {
+        _pendingModifierOnlySet = pressed;
+      }
+      return false;
+    }
+
+    // Already fired for this held chord.
     if (_firedWhilePressed.contains(pressed)) return false;
 
     for (final action in List.of(actions).reversed) {
       if (action()) {
         _firedWhilePressed.add(pressed);
+        _pendingModifierOnlySet = null;
         return true;
       }
     }
 
     return false;
+  }
+
+  bool _handleKeyUp(LogicalKeySet pressed) {
+    final pending = _pendingModifierOnlySet;
+    if (pending == null) return false;
+
+    // Wait until the pending chord is no longer fully pressed.
+    if (_isSubset(pending.keys, pressed.keys)) {
+      return false;
+    }
+
+    _pendingModifierOnlySet = null;
+
+    final actions = _bindings[pending];
+    if (actions == null || actions.isEmpty) return false;
+
+    for (final action in List.of(actions).reversed) {
+      if (action()) return true;
+    }
+
+    return false;
+  }
+
+  LogicalKeyboardKey _normalizeKey(LogicalKeyboardKey key) {
+    return _keyNorm[key] ?? key;
   }
 
   LogicalKeySet _normalizeKeySet(LogicalKeySet keySet) {
@@ -91,12 +154,24 @@ class GlobalKeybindService {
 
   LogicalKeySet _normalizeKeys(Set<LogicalKeyboardKey> keys) {
     return LogicalKeySet.fromSet(
-      keys.map((k) => _keyNorm[k] ?? k).toSet(),
+      keys.map(_normalizeKey).toSet(),
     );
+  }
+
+  bool _isModifierOnly(LogicalKeySet keySet) {
+    return keySet.keys.every(_modifierKeys.contains);
+  }
+
+  bool _isSubset(
+    Set<LogicalKeyboardKey> subset,
+    Set<LogicalKeyboardKey> superset,
+  ) {
+    return subset.every(superset.contains);
   }
 
   void dispose() {
     ServicesBinding.instance.keyboard.removeHandler(_handleKey);
     _firedWhilePressed.clear();
+    _pendingModifierOnlySet = null;
   }
 }
