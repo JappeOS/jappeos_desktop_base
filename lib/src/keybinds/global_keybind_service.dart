@@ -20,18 +20,21 @@ import 'package:shadcn_flutter/shadcn_flutter.dart';
 typedef KeybindAction = bool Function();
 
 class GlobalKeybindService {
-  // Normalize sided modifier keys to their unsided equivalents so that
-  // registrations using e.g. LogicalKeyboardKey.shift match physical
-  // shiftLeft / shiftRight events coming from HardwareKeyboard.
-  static final Map<LogicalKeyboardKey, LogicalKeyboardKey> _modifierNorm = {
-    LogicalKeyboardKey.shiftLeft:    LogicalKeyboardKey.shift,
-    LogicalKeyboardKey.shiftRight:   LogicalKeyboardKey.shift,
-    LogicalKeyboardKey.controlLeft:  LogicalKeyboardKey.control,
+  // Normalize sided modifiers and Super/Meta variants into canonical keys so
+  // registrations and pressed-state lookups are comparable across platforms.
+  static final Map<LogicalKeyboardKey, LogicalKeyboardKey> _keyNorm = {
+    LogicalKeyboardKey.shiftLeft: LogicalKeyboardKey.shift,
+    LogicalKeyboardKey.shiftRight: LogicalKeyboardKey.shift,
+    LogicalKeyboardKey.controlLeft: LogicalKeyboardKey.control,
     LogicalKeyboardKey.controlRight: LogicalKeyboardKey.control,
-    LogicalKeyboardKey.altLeft:      LogicalKeyboardKey.alt,
-    LogicalKeyboardKey.altRight:     LogicalKeyboardKey.alt,
-    LogicalKeyboardKey.metaLeft:     LogicalKeyboardKey.superKey,
-    LogicalKeyboardKey.metaRight:    LogicalKeyboardKey.superKey,
+    LogicalKeyboardKey.altLeft: LogicalKeyboardKey.alt,
+    LogicalKeyboardKey.altRight: LogicalKeyboardKey.alt,
+
+    // Treat Meta variants and Super as the same key for shortcuts like Super.
+    LogicalKeyboardKey.metaLeft: LogicalKeyboardKey.superKey,
+    LogicalKeyboardKey.metaRight: LogicalKeyboardKey.superKey,
+    LogicalKeyboardKey.meta: LogicalKeyboardKey.superKey,
+    LogicalKeyboardKey.superKey: LogicalKeyboardKey.superKey,
   };
 
   final Map<LogicalKeySet, List<KeybindAction>> _bindings = {};
@@ -41,14 +44,16 @@ class GlobalKeybindService {
   }
 
   void register(LogicalKeySet keySet, KeybindAction action) {
-    _bindings.putIfAbsent(keySet, () => []).add(action);
+    final normalized = _normalizeKeySet(keySet);
+    _bindings.putIfAbsent(normalized, () => []).add(action);
   }
 
   void unregister(LogicalKeySet keySet, KeybindAction action) {
-    final list = _bindings[keySet];
+    final normalized = _normalizeKeySet(keySet);
+    final list = _bindings[normalized];
     if (list == null) return;
     list.remove(action);
-    if (list.isEmpty) _bindings.remove(keySet);
+    if (list.isEmpty) _bindings.remove(normalized);
   }
 
   bool _handleKey(KeyEvent event) {
@@ -65,12 +70,13 @@ class GlobalKeybindService {
     return false;
   }
 
-  /// Replaces every sided modifier key (shiftLeft, controlRight, …) with its
-  /// canonical unsided form so Map lookups match registrations made with the
-  /// unsided constants.
+  LogicalKeySet _normalizeKeySet(LogicalKeySet keySet) {
+    return _normalizeKeys(keySet.keys);
+  }
+
   LogicalKeySet _normalizeKeys(Set<LogicalKeyboardKey> keys) {
     return LogicalKeySet.fromSet(
-      keys.map((k) => _modifierNorm[k] ?? k).toSet(),
+      keys.map((k) => _keyNorm[k] ?? k).toSet(),
     );
   }
 
