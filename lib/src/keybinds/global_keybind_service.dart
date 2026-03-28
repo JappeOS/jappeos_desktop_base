@@ -30,8 +30,8 @@ class GlobalKeybindService {
     LogicalKeyboardKey.controlRight: LogicalKeyboardKey.control,
     LogicalKeyboardKey.altLeft:      LogicalKeyboardKey.alt,
     LogicalKeyboardKey.altRight:     LogicalKeyboardKey.alt,
-    LogicalKeyboardKey.metaLeft:     LogicalKeyboardKey.meta,
-    LogicalKeyboardKey.metaRight:    LogicalKeyboardKey.meta,
+    LogicalKeyboardKey.metaLeft:     LogicalKeyboardKey.superKey,
+    LogicalKeyboardKey.metaRight:    LogicalKeyboardKey.superKey,
   };
 
   final Map<LogicalKeySet, List<KeybindAction>> _bindings = {};
