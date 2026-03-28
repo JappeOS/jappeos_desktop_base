@@ -20,6 +20,20 @@ import 'package:shadcn_flutter/shadcn_flutter.dart';
 typedef KeybindAction = bool Function();
 
 class GlobalKeybindService {
+  // Normalize sided modifier keys to their unsided equivalents so that
+  // registrations using e.g. LogicalKeyboardKey.shift match physical
+  // shiftLeft / shiftRight events coming from HardwareKeyboard.
+  static final Map<LogicalKeyboardKey, LogicalKeyboardKey> _modifierNorm = {
+    LogicalKeyboardKey.shiftLeft:    LogicalKeyboardKey.shift,
+    LogicalKeyboardKey.shiftRight:   LogicalKeyboardKey.shift,
+    LogicalKeyboardKey.controlLeft:  LogicalKeyboardKey.control,
+    LogicalKeyboardKey.controlRight: LogicalKeyboardKey.control,
+    LogicalKeyboardKey.altLeft:      LogicalKeyboardKey.alt,
+    LogicalKeyboardKey.altRight:     LogicalKeyboardKey.alt,
+    LogicalKeyboardKey.metaLeft:     LogicalKeyboardKey.meta,
+    LogicalKeyboardKey.metaRight:    LogicalKeyboardKey.meta,
+  };
+
   final Map<LogicalKeySet, List<KeybindAction>> _bindings = {};
 
   GlobalKeybindService() {
@@ -27,36 +41,37 @@ class GlobalKeybindService {
   }
 
   void register(LogicalKeySet keySet, KeybindAction action) {
-    if (!_bindings.containsKey(keySet)) {
-      _bindings[keySet] = [];
-    }
-
-    _bindings[keySet]!.add(action);
+    _bindings.putIfAbsent(keySet, () => []).add(action);
   }
 
   void unregister(LogicalKeySet keySet, KeybindAction action) {
-    _bindings[keySet]?.remove(action);
-    if (_bindings[keySet]?.isEmpty ?? false) {
-      _bindings.remove(keySet);
-    }
+    final list = _bindings[keySet];
+    if (list == null) return;
+    list.remove(action);
+    if (list.isEmpty) _bindings.remove(keySet);
   }
 
   bool _handleKey(KeyEvent event) {
-    if (event is! KeyDownEvent) return false;
+    if (event is! KeyDownEvent && event is! KeyRepeatEvent) return false;
 
-    final pressed = LogicalKeySet.fromSet(
-      HardwareKeyboard.instance.logicalKeysPressed,
-    );
-
+    final pressed = _normalizeKeys(HardwareKeyboard.instance.logicalKeysPressed);
     final actions = _bindings[pressed];
-    bool handled = false;
-    for (final action in actions ?? []) {
-      if (action()) {
-        handled = true;
-      }
+    if (actions == null || actions.isEmpty) return false;
+
+    for (final action in List.of(actions).reversed) {
+      if (action()) return true;
     }
 
-    return handled;
+    return false;
+  }
+
+  /// Replaces every sided modifier key (shiftLeft, controlRight, …) with its
+  /// canonical unsided form so Map lookups match registrations made with the
+  /// unsided constants.
+  LogicalKeySet _normalizeKeys(Set<LogicalKeyboardKey> keys) {
+    return LogicalKeySet.fromSet(
+      keys.map((k) => _modifierNorm[k] ?? k).toSet(),
+    );
   }
 
   void dispose() {
