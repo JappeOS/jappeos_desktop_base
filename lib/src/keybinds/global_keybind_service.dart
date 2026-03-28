@@ -30,7 +30,7 @@ class GlobalKeybindService {
     LogicalKeyboardKey.altLeft: LogicalKeyboardKey.alt,
     LogicalKeyboardKey.altRight: LogicalKeyboardKey.alt,
 
-    // Treat Meta variants and Super as the same key for shortcuts like Super.
+    // Treat Meta variants and Super as the same key for shortcut matching.
     LogicalKeyboardKey.metaLeft: LogicalKeyboardKey.superKey,
     LogicalKeyboardKey.metaRight: LogicalKeyboardKey.superKey,
     LogicalKeyboardKey.meta: LogicalKeyboardKey.superKey,
@@ -38,6 +38,9 @@ class GlobalKeybindService {
   };
 
   final Map<LogicalKeySet, List<KeybindAction>> _bindings = {};
+
+  // Prevent firing the same chord multiple times while still held down.
+  final Set<LogicalKeySet> _firedWhilePressed = {};
 
   GlobalKeybindService() {
     ServicesBinding.instance.keyboard.addHandler(_handleKey);
@@ -54,17 +57,29 @@ class GlobalKeybindService {
     if (list == null) return;
     list.remove(action);
     if (list.isEmpty) _bindings.remove(normalized);
+    _firedWhilePressed.remove(normalized);
   }
 
   bool _handleKey(KeyEvent event) {
+    final pressed = _normalizeKeys(HardwareKeyboard.instance.logicalKeysPressed);
+
+    // As the currently pressed chord changes, keep only the active one "armed".
+    _firedWhilePressed.removeWhere((set) => set != pressed);
+
+    if (event is KeyUpEvent) return false;
     if (event is! KeyDownEvent && event is! KeyRepeatEvent) return false;
 
-    final pressed = _normalizeKeys(HardwareKeyboard.instance.logicalKeysPressed);
     final actions = _bindings[pressed];
     if (actions == null || actions.isEmpty) return false;
 
+    // Already fired for this held chord; ignore duplicate down/repeat events.
+    if (_firedWhilePressed.contains(pressed)) return false;
+
     for (final action in List.of(actions).reversed) {
-      if (action()) return true;
+      if (action()) {
+        _firedWhilePressed.add(pressed);
+        return true;
+      }
     }
 
     return false;
@@ -82,5 +97,6 @@ class GlobalKeybindService {
 
   void dispose() {
     ServicesBinding.instance.keyboard.removeHandler(_handleKey);
+    _firedWhilePressed.clear();
   }
 }
