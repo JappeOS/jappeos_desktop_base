@@ -75,31 +75,31 @@ class ShellApp extends StatelessWidget {
           ...providers,
           ListenableProvider<ThemeProvider>(create: (_) => ThemeProvider()),
         ],
-        builder: (context, _) => _wrap(
-          context: context,
-          child: MediaQuery(
-            // TODO: Correctly integrate system text scaling by changing scales of icons and other UI elements with text.
-            data: mediaQuery.copyWith(textScaler: const TextScaler.linear(1.0)),
-            child: ShadcnApp(
-              title: title,
-              debugShowMaterialGrid: debugShowMaterialGrid,
-              showPerformanceOverlay: showPerformanceOverlay,
-              showSemanticsDebugger: showSemanticsDebugger,
-              debugShowCheckedModeBanner: debugShowCheckedModeBanner,
-              theme: theme,
-              darkTheme: darkTheme,
-              themeMode: context.watch<ThemeProvider>().isDark
-                  ? ThemeMode.dark
-                  : ThemeMode.light,
-              enableThemeAnimation: enableThemeAnimation,
-              shortcuts: shortcuts,
-              actions: actions,
-              /*builder: builder,
-              home: child,*/
-              home: _globalKeybindScope(
-                keybinds: keybinds,
-                child: Scaffold(
-                  backgroundColor: Colors.transparent,
+        builder: (context, _) => _globalKeybindScope(
+          keybinds: keybinds,
+          child: _wrap(
+            context: context,
+            child: MediaQuery(
+              // TODO: Correctly integrate system text scaling by changing scales of icons and other UI elements with text.
+              data: mediaQuery.copyWith(textScaler: const TextScaler.linear(1.0)),
+              child: ShadcnApp(
+                title: title,
+                debugShowMaterialGrid: debugShowMaterialGrid,
+                showPerformanceOverlay: showPerformanceOverlay,
+                showSemanticsDebugger: showSemanticsDebugger,
+                debugShowCheckedModeBanner: debugShowCheckedModeBanner,
+                theme: theme,
+                darkTheme: darkTheme,
+                themeMode: context.watch<ThemeProvider>().isDark
+                    ? ThemeMode.dark
+                    : ThemeMode.light,
+                enableThemeAnimation: enableThemeAnimation,
+                shortcuts: shortcuts,
+                actions: actions,
+                /*builder: builder,
+                home: child,*/
+                home: Scaffold(
+                  backgroundColor: Colors.black,
                   child: WindowManager(
                     key: wmKey,
                     monitors: monitors,
